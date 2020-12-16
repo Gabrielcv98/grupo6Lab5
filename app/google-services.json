@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "400093460033",
+    "project_id": "firebox-71934",
+    "storage_bucket": "firebox-71934.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:400093460033:android:29898b69a122dfb075f8c0",
+        "android_client_info": {
+          "package_name": "pe.pucp.tel306.firebox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "400093460033-13g5tghkogse1n9hro5osq2jn0u2c5h9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "pe.pucp.tel306.firebox",
+            "certificate_hash": "46c44963dad343b1f4e8fcfb83371b39684d98d8"
+          }
+        },
+        {
+          "client_id": "400093460033-bbfd3m3163mhq7s2em0otf18r68mgdie.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCT6-kSiGD5lE25EvokCW94sfX2nEWLYi8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "400093460033-bbfd3m3163mhq7s2em0otf18r68mgdie.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
