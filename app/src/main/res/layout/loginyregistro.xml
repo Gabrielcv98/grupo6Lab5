@@ -94,7 +94,7 @@
             android:layout_marginTop="14dp"
             android:layout_marginEnd="32dp"
             android:background="@drawable/boton_registro"
-            android:text="Registro con Gugol" />
+            android:text="Inicio de sesión con Google" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
