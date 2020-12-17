@@ -19,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginyRegistro extends AppCompatActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,11 +93,7 @@ public class LoginyRegistro extends AppCompatActivity {
         startActivity(i);
     }
 
-    public void CrearColeccion(){
-        FirebaseFirestore dbF = FirebaseFirestore.getInstance();
-        dbF.collection("users").document();
 
-    }
 
 
 
