@@ -15,7 +15,7 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.266"
+        app:layout_constraintVertical_bias="0.33"
         tools:layout_editor_absoluteX="0dp">
 
         <TextView
@@ -68,23 +68,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="45dp"
             android:layout_marginEnd="32dp"
-            android:textColor="@color/common_google_signin_btn_text_dark_pressed"
             android:background="@drawable/boton_redondeado"
-            android:text="Iniciar sesión" />
+            android:text="Iniciar sesión"
+            android:textColor="@color/common_google_signin_btn_text_dark_pressed" />
 
         <Button
             android:id="@+id/buttonRegistrarseInicio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="14dp"
             android:layout_marginEnd="32dp"
             android:background="@drawable/boton_registro"
             android:text="Registrarse"
             android:textAlignment="center"
             app:layout_constraintBottom_toBottomOf="parent" />
+
+        <Button
+            android:id="@+id/buttonRegistroConGoogle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="32dp"
+            android:background="@drawable/boton_registro"
+            android:text="Registro con Gugol" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
