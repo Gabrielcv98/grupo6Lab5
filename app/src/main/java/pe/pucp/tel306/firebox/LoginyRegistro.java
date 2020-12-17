@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginyRegistro extends AppCompatActivity {
 
@@ -89,6 +90,12 @@ public class LoginyRegistro extends AppCompatActivity {
         Intent i = new Intent(getApplicationContext(), MainActivity2.class);
         i.putExtras(params);
         startActivity(i);
+    }
+
+    public void CrearColeccion(){
+        FirebaseFirestore dbF = FirebaseFirestore.getInstance();
+        dbF.collection("users").document();
+
     }
 
 
