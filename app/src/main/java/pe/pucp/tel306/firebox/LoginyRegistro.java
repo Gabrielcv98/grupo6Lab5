@@ -4,11 +4,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,12 +25,23 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.dynamic.IFragmentWrapper;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 public class LoginyRegistro extends AppCompatActivity {
 
@@ -39,7 +56,7 @@ public class LoginyRegistro extends AppCompatActivity {
         inputContra = (EditText) findViewById(R.id.editTextTextPassword);
         Button btnRegistro,btnIniciarSesion,btnGoogle;
 
-        btnRegistro = (Button) findViewById(R.id.buttonRegistrarseInicio);
+        //btnRegistro = (Button) findViewById(R.id.buttonRegistrarseInicio);
         btnIniciarSesion = (Button) findViewById(R.id.buttonIniciarSesionPri);
         btnGoogle = (Button) findViewById(R.id.buttonRegistroConGoogle);
 
@@ -69,7 +86,7 @@ public class LoginyRegistro extends AppCompatActivity {
         }
         );
 
-        btnRegistro.setOnClickListener(new View.OnClickListener() {
+        /*btnRegistro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!inputEmail.getText().toString().equals("") && !inputContra.getText().toString().equals("")){
@@ -77,6 +94,18 @@ public class LoginyRegistro extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()){
+                                String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                                File directorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                                File archivo = new File(directorio, "imagen.jpg");
+
+                                try {
+
+                                }catch ()
+                                InputStream stream = new FileInputStream(archivo);
+                                FirebaseStorage storage = FirebaseStorage.getInstance();
+                                StorageReference storageReference = storage.getReference();
+                                StorageReference carpeRoot = storageReference.child("users").child(id);
+                                Log.d("infoApp", carpeRoot.toString());
                                 ingresoExitoso(inputEmail.getText().toString());
                             }else {
                                 mostrarError();
@@ -87,7 +116,7 @@ public class LoginyRegistro extends AppCompatActivity {
 
                 }
             }
-        );
+        );*/
 
         btnGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,6 +136,73 @@ public class LoginyRegistro extends AppCompatActivity {
 
 
         session();
+    }
+
+    String idusuario;
+    public void Registro (View view){
+        final EditText inputEmail = (EditText) findViewById(R.id.editTextSesion);
+        EditText inputContra = (EditText) findViewById(R.id.editTextTextPassword);
+        if (!inputEmail.getText().toString().equals("") && !inputContra.getText().toString().equals("")){
+            FirebaseAuth.getInstance().createUserWithEmailAndPassword(inputEmail.getText().toString(), inputContra.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()){
+                        idusuario = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        subirArchivoPutStream(idusuario);
+
+                        FirebaseStorage storage = FirebaseStorage.getInstance();
+                        StorageReference storageReference = storage.getReference();
+                        StorageReference carpeRoot = storageReference.child("users").child(idusuario);
+                        Log.d("infoApp", carpeRoot.toString());
+                        ingresoExitoso(inputEmail.getText().toString());
+                    }else {
+                        mostrarError();
+                    }
+                }
+            });
+        }
+    }
+
+    public void subirArchivoPutStream (String id){
+        int permission = ContextCompat.checkSelfPermission(LoginyRegistro.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permission == PackageManager.PERMISSION_GRANTED){
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+
+            File externalStoragePublicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            File file = new File(externalStoragePublicDirectory, "imagen1.png");
+            try {
+                InputStream stream = new FileInputStream(file);
+                storageReference.child(id + "/subido.jpg").putStream(stream)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                Log.d("infoApp", "subida exitosa");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d("infoApp", "error");
+                            }
+                        });
+            }catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+
+
+        }else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
+        }
+    }
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && requestCode == 1) {
+            subirArchivoPutStream(idusuario);
+        }
     }
 
     public void session(){
