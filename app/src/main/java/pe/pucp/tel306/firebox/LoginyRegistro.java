@@ -178,7 +178,6 @@ public class LoginyRegistro extends AppCompatActivity {
             googleClient.signOut();
 
             startActivityForResult(googleClient.getSignInIntent(),google_sign_in);
-
         }
 
     public void subirArchivoPutStream (String id){
@@ -240,7 +239,7 @@ public class LoginyRegistro extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()){
-                                ingresoExitoso(account.getEmail());
+                                ingresoExitoso2(account.getEmail(), account.getGivenName(),account.getFamilyName(),"cuenta basica",200);
                             }else {
                                 mostrarError();
                             }
