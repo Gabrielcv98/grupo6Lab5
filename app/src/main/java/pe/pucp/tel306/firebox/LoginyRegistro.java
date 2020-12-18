@@ -150,6 +150,7 @@ public class LoginyRegistro extends AppCompatActivity {
     }
 
 
+    //el id del usuario por si se necesita en otro método externo
     String idusuario;
     public void Registro (final Usuario usuario){
         if (!usuario.getEmail().equals("") && !usuario.getPassword().equals("")){
