@@ -37,6 +37,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -44,6 +45,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,49 +61,6 @@ public class LoginyRegistro extends AppCompatActivity {
         setContentView(R.layout.loginyregistro);
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.esc_reutilizable, new IniciarSesion()).commit();
-
-
-        /*final EditText inputEmail, inputContra;
-        inputEmail = (EditText) findViewById(R.id.editTextSesion);
-        inputContra = (EditText) findViewById(R.id.editTextTextPassword);
-        Button btnRegistro,btnIniciarSesion,btnGoogle;
-
-        //btnRegistro = (Button) findViewById(R.id.buttonRegistrarseInicio);
-        btnIniciarSesion = (Button) findViewById(R.id.buttonIniciarSesionPri);
-        btnGoogle = (Button) findViewById(R.id.buttonRegistroConGoogle);
-
-        /*btnRegistro.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!inputEmail.getText().toString().equals("") && !inputContra.getText().toString().equals("")){
-                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(inputEmail.getText().toString(), inputContra.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()){
-                                String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                                File directorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                                File archivo = new File(directorio, "imagen.jpg");
-
-                                try {
-
-                                }catch ()
-                                InputStream stream = new FileInputStream(archivo);
-                                FirebaseStorage storage = FirebaseStorage.getInstance();
-                                StorageReference storageReference = storage.getReference();
-                                StorageReference carpeRoot = storageReference.child("users").child(id);
-                                Log.d("infoApp", carpeRoot.toString());
-                                ingresoExitoso(inputEmail.getText().toString());
-                            }else {
-                                mostrarError();
-                            }
-                        }
-                    });
-                }
-
-                }
-            }
-        );*/
-
 
         session();
     }
@@ -209,6 +168,27 @@ public class LoginyRegistro extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
         }
     }
+
+
+    public void descargaArchivosStorage() throws IOException {
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+
+        File localFile = new File(this.getFilesDir(), "Firebox");
+
+        storageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                // Local temp file has been created
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
+        });
+
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
