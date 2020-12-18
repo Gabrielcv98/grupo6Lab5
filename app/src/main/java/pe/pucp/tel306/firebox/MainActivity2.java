@@ -108,15 +108,6 @@ public class MainActivity2 extends AppCompatActivity {
                 });
         return listaCarpetas;
     }
-    public ArrayList<String> lol(){
-        ArrayList<String> dato = new ArrayList<>();
-        dato.add("Holi");
-        dato.add("Holi");
-        dato.add("Holi");
-        dato.add("Holi");dato.add("Holi");dato.add("Holi");
 
-
-     return dato;
-    }
 
 }
