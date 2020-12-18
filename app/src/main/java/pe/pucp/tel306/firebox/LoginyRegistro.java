@@ -32,10 +32,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pe.pucp.tel306.firebox.Entity.Usuario;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 public class LoginyRegistro extends AppCompatActivity {
 
-    Usuario usuario;
     private int google_sign_in = 100;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,25 +169,6 @@ public class LoginyRegistro extends AppCompatActivity {
         Intent i = new Intent(getApplicationContext(), MainActivity2.class);
         i.putExtras(params);
         startActivity(i);
-    }
-    public void crearColeccionFireStore(Usuario usuario){
-
-        Map<String, Object> user = new HashMap<>();
-        user.put("nombre", usuario.getNombre() + " " + usuario.getApellido() );
-        user.put("Tipo de usuario",usuario.getTipo_usuario() );
-        user.put("Espacio de almacenamiento", usuario.getAlmacenamiento());
-
-        Map<String, Object> aPrivados = new HashMap<>();
-        for(int i=0;i<usuario.getArchivos_privados().size();i++) {
-            aPrivados.put("archivo " + i+1 ,usuario.getArchivos_privados().get(i) );
-        }
-        user.put("archivo",usuario.getArchivos_privados());
-        FirebaseFirestore dbF = FirebaseFirestore.getInstance();
-        DocumentReference usersColeccion = dbF.collection("users").document(usuario.getId());
-        usersColeccion.set(user);
-        usersColeccion.collection("archivos privados").add(aPrivados);
-
-
     }
 
 
