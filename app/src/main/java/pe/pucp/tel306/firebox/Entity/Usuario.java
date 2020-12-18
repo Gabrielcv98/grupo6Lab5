@@ -9,6 +9,8 @@ public class Usuario {
     private String tipo_usuario;
     private int almacenamiento;
     private ArrayList<String> archivos_privados;
+    private String email;
+    private String password;
 
     public String getNombre() {
         return nombre;
@@ -56,5 +58,21 @@ public class Usuario {
 
     public void setArchivos_privados(ArrayList<String> archivos_privados) {
         this.archivos_privados = archivos_privados;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

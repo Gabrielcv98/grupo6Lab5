@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import pe.pucp.tel306.firebox.Entity.Usuario;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link Registro#newInstance} factory method to
@@ -79,9 +81,16 @@ public class Registro extends Fragment {
                 String contra = txtPwd.getText().toString();
                 String tipoCuenta = "cuenta básica";
                 int almacenamientoTopeEnMB = 200;
+                Usuario usuario = new Usuario();
+                usuario.setNombre(name);
+                usuario.setApellido(apellidos);
+                usuario.setAlmacenamiento(almacenamientoTopeEnMB);
+                usuario.setTipo_usuario(tipoCuenta);
+                usuario.setEmail(email);
+                usuario.setPassword(contra);
 
                 LoginyRegistro m2 = (LoginyRegistro) getActivity();
-                m2.Registro(email,contra,name,apellidos,tipoCuenta, almacenamientoTopeEnMB);
+                m2.Registro(usuario);
             }
         });
 
