@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
 import android.content.Context;
@@ -34,6 +35,8 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -42,6 +45,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import pe.pucp.tel306.firebox.Entity.Usuario;
 
 public class LoginyRegistro extends AppCompatActivity {
 
@@ -50,8 +57,11 @@ public class LoginyRegistro extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.loginyregistro);
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction().replace(R.id.esc_reutilizable, new IniciarSesion()).commit();
 
-        final EditText inputEmail, inputContra;
+
+        /*final EditText inputEmail, inputContra;
         inputEmail = (EditText) findViewById(R.id.editTextSesion);
         inputContra = (EditText) findViewById(R.id.editTextTextPassword);
         Button btnRegistro,btnIniciarSesion,btnGoogle;
@@ -59,32 +69,6 @@ public class LoginyRegistro extends AppCompatActivity {
         //btnRegistro = (Button) findViewById(R.id.buttonRegistrarseInicio);
         btnIniciarSesion = (Button) findViewById(R.id.buttonIniciarSesionPri);
         btnGoogle = (Button) findViewById(R.id.buttonRegistroConGoogle);
-
-        btnIniciarSesion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!inputEmail.getText().toString().equals("") && !inputContra.getText().toString().equals("")){
-                    try {
-                        FirebaseAuth.getInstance().signInWithEmailAndPassword(inputEmail.getText().toString(), inputContra.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()){
-                                    ingresoExitoso(inputEmail.getText().toString());
-                                }else {
-                                    mostrarError();
-                                }
-                            }
-                        });
-                    }catch (Error error){
-                        Toast.makeText(getApplicationContext(),"Error: no esta registrado", Toast.LENGTH_SHORT).show();
-                    }
-
-                }else {
-                    Toast.makeText(getApplicationContext(),"Error: debe colocar sus datos", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-        );
 
         /*btnRegistro.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,33 +102,37 @@ public class LoginyRegistro extends AppCompatActivity {
             }
         );*/
 
-        btnGoogle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GoogleSignInOptions googleconf = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestIdToken(getString(R.string.default_web_client_id))
-                        .requestEmail()
-                        .build();
-
-                GoogleSignInClient googleClient = GoogleSignIn.getClient(getApplicationContext(),googleconf);
-                googleClient.signOut();
-
-                startActivityForResult(googleClient.getSignInIntent(),google_sign_in);
-
-            }
-        });
-
 
         session();
     }
 
+        public void iniciarSesion (final String email, String contra) {
+            if (!email.equals("") && !contra.equals("")){
+                try {
+                    FirebaseAuth.getInstance().signInWithEmailAndPassword(email, contra).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()){
+                                ingresoExitoso(email);
+                            }else {
+                                mostrarError();
+                            }
+                        }
+                    });
+                }catch (Error error){
+                    Toast.makeText(getApplicationContext(),"Error: no esta registrado", Toast.LENGTH_SHORT).show();
+                }
+            }else {
+                Toast.makeText(getApplicationContext(),"Error: debe colocar sus datos", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
     //el id del usuario por si se necesita en otro método externo
     String idusuario;
-    public void Registro (View view){
-        final EditText inputEmail = (EditText) findViewById(R.id.editTextSesion);
-        EditText inputContra = (EditText) findViewById(R.id.editTextTextPassword);
-        if (!inputEmail.getText().toString().equals("") && !inputContra.getText().toString().equals("")){
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(inputEmail.getText().toString(), inputContra.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+    public void Registro (final String email, String contra, final String nombres, final String apellidos, final String tipoCuenta, final int almacenamientoTope){
+        if (!email.equals("") && !contra.equals("")){
+            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, contra).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()){
@@ -159,7 +147,7 @@ public class LoginyRegistro extends AppCompatActivity {
                         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                ingresoExitoso(inputEmail.getText().toString());
+                                ingresoExitoso2(email,nombres,apellidos,tipoCuenta,almacenamientoTope);
                             }
                         })
                                 .addOnFailureListener(new OnFailureListener() {
@@ -177,6 +165,21 @@ public class LoginyRegistro extends AppCompatActivity {
             });
         }
     }
+
+
+
+        public void inicioDeSesionConGoogle() {
+            GoogleSignInOptions googleconf = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build();
+
+            GoogleSignInClient googleClient = GoogleSignIn.getClient(getApplicationContext(),googleconf);
+            googleClient.signOut();
+
+            startActivityForResult(googleClient.getSignInIntent(),google_sign_in);
+
+        }
 
     public void subirArchivoPutStream (String id){
         int permission = ContextCompat.checkSelfPermission(LoginyRegistro.this, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -204,14 +207,10 @@ public class LoginyRegistro extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-
-
         }else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},1);
         }
     }
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -262,6 +261,37 @@ public class LoginyRegistro extends AppCompatActivity {
     public void ingresoExitoso(String inputEmail){
         Bundle params = new Bundle();
         params.putString("email",inputEmail);
+        Intent i = new Intent(getApplicationContext(), MainActivity2.class);
+        i.putExtras(params);
+        startActivity(i);
+    }
+    public void crearColeccionFireStore(Usuario usuario){
+
+        Map<String, Object> user = new HashMap<>();
+        user.put("nombre", usuario.getNombre() + " " + usuario.getApellido() );
+        user.put("Tipo de usuario",usuario.getTipo_usuario() );
+        user.put("Espacio de almacenamiento", usuario.getAlmacenamiento());
+
+        Map<String, Object> aPrivados = new HashMap<>();
+        for(int i=0;i<usuario.getArchivos_privados().size();i++) {
+            aPrivados.put("archivo " + i+1 ,usuario.getArchivos_privados().get(i) );
+        }
+        user.put("archivo",usuario.getArchivos_privados());
+        FirebaseFirestore dbF = FirebaseFirestore.getInstance();
+        DocumentReference usersColeccion = dbF.collection("users").document(usuario.getId());
+        usersColeccion.set(user);
+        usersColeccion.collection("archivos privados").add(aPrivados);
+
+
+    }
+
+    public void ingresoExitoso2(String inputEmail, String nombres, String apellidos, String tipoCuenta, int almacenamiento){
+        Bundle params = new Bundle();
+        params.putString("email",inputEmail);
+        params.putString("nombres",inputEmail);
+        params.putString("apellidos",inputEmail);
+        params.putString("tipoCuenta",inputEmail);
+        params.putString("almacenamiento",inputEmail);
         Intent i = new Intent(getApplicationContext(), MainActivity2.class);
         i.putExtras(params);
         startActivity(i);
