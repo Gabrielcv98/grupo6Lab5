@@ -1,6 +1,10 @@
 package pe.pucp.tel306.firebox;
 
+
+import androidx.annotation.NonNull;
+
 import androidx.annotation.Nullable;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -10,18 +14,37 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.dynamic.IFragmentWrapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageReference;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
+import pe.pucp.tel306.firebox.Adaptadores.AdaptadorCarpetas;
 
 public class MainActivity2 extends AppCompatActivity {
+
+
+    private ArrayList<String> listaCarpetas;
 
     FloatingActionButton agregar, foto, doc;
     Boolean isAllFabVisible;
     private final int CHOOSE_PDF_FROM_DEVICE = 1001;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,4 +177,41 @@ public class MainActivity2 extends AppCompatActivity {
         Toast.makeText(this, "holoaaaa", Toast.LENGTH_SHORT).show();
 
     }
+
+    public ArrayList<String> listarArchivos(final ArrayList<String> listaCarpetas) {
+
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        StorageReference reference = FirebaseStorage.getInstance().getReference().child(user.getUid());
+
+        reference.listAll()
+                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                    @Override
+                    public void onSuccess(ListResult listResult) {
+                        int cantidadElementos = listResult.getItems().size();
+                        Log.d("infoApp", "cantidad de elementos: " + cantidadElementos);
+
+                        Log.d("infoApp", "carpetas: " + listResult.getPrefixes().size());
+
+
+                        for (StorageReference ref : listResult.getItems()) {
+                            Log.d("infoApp", "elemento: " + ref.getName());
+
+                            listaCarpetas.add(ref.getName());
+
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                        Log.d("infoApp", "Error al listar");
+                    }
+
+                });
+        return listaCarpetas;
+    }
+
+
 }

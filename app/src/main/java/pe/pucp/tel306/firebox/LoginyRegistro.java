@@ -36,7 +36,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -44,6 +46,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,49 +63,6 @@ public class LoginyRegistro extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.esc_reutilizable, new IniciarSesion()).commit();
 
-
-        /*final EditText inputEmail, inputContra;
-        inputEmail = (EditText) findViewById(R.id.editTextSesion);
-        inputContra = (EditText) findViewById(R.id.editTextTextPassword);
-        Button btnRegistro,btnIniciarSesion,btnGoogle;
-
-        //btnRegistro = (Button) findViewById(R.id.buttonRegistrarseInicio);
-        btnIniciarSesion = (Button) findViewById(R.id.buttonIniciarSesionPri);
-        btnGoogle = (Button) findViewById(R.id.buttonRegistroConGoogle);
-
-        /*btnRegistro.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!inputEmail.getText().toString().equals("") && !inputContra.getText().toString().equals("")){
-                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(inputEmail.getText().toString(), inputContra.getText().toString()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()){
-                                String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                                File directorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                                File archivo = new File(directorio, "imagen.jpg");
-
-                                try {
-
-                                }catch ()
-                                InputStream stream = new FileInputStream(archivo);
-                                FirebaseStorage storage = FirebaseStorage.getInstance();
-                                StorageReference storageReference = storage.getReference();
-                                StorageReference carpeRoot = storageReference.child("users").child(id);
-                                Log.d("infoApp", carpeRoot.toString());
-                                ingresoExitoso(inputEmail.getText().toString());
-                            }else {
-                                mostrarError();
-                            }
-                        }
-                    });
-                }
-
-                }
-            }
-        );*/
-
-
         session();
     }
 
@@ -114,6 +74,9 @@ public class LoginyRegistro extends AppCompatActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()){
                                 ingresoExitoso(email);
+                                Usuario usuario = new Usuario();
+                                usuario = obtenerDatosFireStore();
+
                             }else {
                                 mostrarError();
                             }
@@ -127,18 +90,36 @@ public class LoginyRegistro extends AppCompatActivity {
             }
         }
 
+    public Usuario obtenerDatosFireStore() {
+        final Usuario usuario = new Usuario();
+        FirebaseFirestore dbF = FirebaseFirestore.getInstance();
+        dbF.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(
+                new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()){
+                            usuario.setNombre(documentSnapshot.getString("nombre"));
+                            usuario.setTipo_usuario(documentSnapshot.getString("Tipo de usuario"));
+                            usuario.setAlmacenamiento(Integer.parseInt(documentSnapshot.getString("Espacio de almacenamiento")));
+                        }
+                    }
+                }
+        );
+    return  usuario;
+    }
+
 
     //el id del usuario por si se necesita en otro método externo
     String idusuario;
-    public void Registro (final String email, String contra, final String nombres, final String apellidos, final String tipoCuenta, final int almacenamientoTope){
-        if (!email.equals("") && !contra.equals("")){
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, contra).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+    public void Registro (final Usuario usuario){
+        if (!usuario.getEmail().equals("") && !usuario.getPassword().equals("")){
+            FirebaseAuth.getInstance().createUserWithEmailAndPassword(usuario.getEmail(), usuario.getPassword()).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()){
                         idusuario = FirebaseAuth.getInstance().getCurrentUser().getUid();
                         //subirArchivoPutStream(idusuario);
-
+                        crearColeccionFireStore(usuario);
                         String data = "Bienvenido a tu cuenta free";
                         FirebaseStorage storage = FirebaseStorage.getInstance();
                         StorageReference storageReference = storage.getReference();
@@ -147,7 +128,7 @@ public class LoginyRegistro extends AppCompatActivity {
                         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                ingresoExitoso2(email,nombres,apellidos,tipoCuenta,almacenamientoTope);
+                                ingresoExitoso2(usuario.getEmail(), usuario.getNombre(),usuario.getApellido(),usuario.getTipo_usuario(),usuario.getAlmacenamiento());
                             }
                         })
                                 .addOnFailureListener(new OnFailureListener() {
@@ -211,6 +192,27 @@ public class LoginyRegistro extends AppCompatActivity {
         }
     }
 
+
+    public void descargaArchivosStorage() throws IOException {
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+
+        File localFile = new File(this.getFilesDir(), "Firebox");
+
+        storageReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                // Local temp file has been created
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
+        });
+
+    }
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && requestCode == 1) {
@@ -270,14 +272,17 @@ public class LoginyRegistro extends AppCompatActivity {
         user.put("nombre", usuario.getNombre() + " " + usuario.getApellido() );
         user.put("Tipo de usuario",usuario.getTipo_usuario() );
         user.put("Espacio de almacenamiento", usuario.getAlmacenamiento());
+        user.put("Correo electrónico", usuario.getEmail());
+        user.put("archivo",usuario.getArchivos_privados());
 
         Map<String, Object> aPrivados = new HashMap<>();
         for(int i=0;i<usuario.getArchivos_privados().size();i++) {
             aPrivados.put("archivo " + i+1 ,usuario.getArchivos_privados().get(i) );
         }
-        user.put("archivo",usuario.getArchivos_privados());
+
+
         FirebaseFirestore dbF = FirebaseFirestore.getInstance();
-        DocumentReference usersColeccion = dbF.collection("users").document(usuario.getId());
+        DocumentReference usersColeccion = dbF.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
         usersColeccion.set(user);
         usersColeccion.collection("archivos privados").add(aPrivados);
 
@@ -287,10 +292,10 @@ public class LoginyRegistro extends AppCompatActivity {
     public void ingresoExitoso2(String inputEmail, String nombres, String apellidos, String tipoCuenta, int almacenamiento){
         Bundle params = new Bundle();
         params.putString("email",inputEmail);
-        params.putString("nombres",inputEmail);
-        params.putString("apellidos",inputEmail);
-        params.putString("tipoCuenta",inputEmail);
-        params.putString("almacenamiento",inputEmail);
+        params.putString("nombres",nombres);
+        params.putString("apellidos",apellidos);
+        params.putString("tipoCuenta",tipoCuenta);
+        params.putInt("almacenamiento",almacenamiento);
         Intent i = new Intent(getApplicationContext(), MainActivity2.class);
         i.putExtras(params);
         startActivity(i);
