@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.dynamic.IFragmentWrapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -98,6 +97,16 @@ public class MainActivity2 extends AppCompatActivity {
 
                 Log.d("infoApp", "aquí");
                 obtenerPath();
+                //con la ruta se procede a guardar en storage
+                //esto tiene que ser con putFile
+
+            }
+        });
+
+        foto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                obtenerRutaFoto();
             }
         });
 
@@ -106,12 +115,24 @@ public class MainActivity2 extends AppCompatActivity {
 
     }
 
-    public void obtenerPath (){
+    public void obtenerRutaFoto(){
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+        startActivityForResult(intent, 2);
+    }
+
+
+    String ruta;
+
+    public String obtenerPath (){
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/pdf");
-        Log.d("infoApp", "llegaste");
+        Log.d("infoApp", "llegaaaaaste");
         startActivityForResult(intent, CHOOSE_PDF_FROM_DEVICE);
+        Log.d("infoApp", ruta + "dede");
+        return ruta;
     }
 
     @Override
@@ -120,10 +141,14 @@ public class MainActivity2 extends AppCompatActivity {
         if (requestCode == CHOOSE_PDF_FROM_DEVICE && resultCode == RESULT_OK){
             if (data != null){
                 Log.d("infoApp", data.getData().toString());
-
+                ruta = data.getData().toString();
             }
+        }else if(requestCode == 2 && resultCode == RESULT_OK){
+
         }
     }
+
+
 
     public  void subirArchivo (View view){
         Toast.makeText(this, "holoaaaa", Toast.LENGTH_SHORT).show();
