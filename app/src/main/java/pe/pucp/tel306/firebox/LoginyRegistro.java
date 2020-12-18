@@ -148,13 +148,27 @@ public class LoginyRegistro extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()){
                         idusuario = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        subirArchivoPutStream(idusuario);
+                        //subirArchivoPutStream(idusuario);
 
+                        String data = "Bienvenido a tu cuenta free";
                         FirebaseStorage storage = FirebaseStorage.getInstance();
                         StorageReference storageReference = storage.getReference();
-                        StorageReference carpeRoot = storageReference.child("users").child(idusuario);
-                        Log.d("infoApp", carpeRoot.toString());
-                        ingresoExitoso(inputEmail.getText().toString());
+                        StorageReference carpeRoot = storageReference.child("users/").child(idusuario).child("Bienvenido.txt");
+                        UploadTask uploadTask = carpeRoot.putBytes(data.getBytes());
+                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                ingresoExitoso(inputEmail.getText().toString());
+                            }
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(LoginyRegistro.this, "no se subio", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                        /*Log.d("infoApp", carpeRoot.toString());
+                        ingresoExitoso(inputEmail.getText().toString());*/
                     }else {
                         mostrarError();
                     }
