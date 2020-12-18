@@ -138,6 +138,7 @@ public class LoginyRegistro extends AppCompatActivity {
         session();
     }
 
+    //el id del usuario por si se necesita en otro método externo
     String idusuario;
     public void Registro (View view){
         final EditText inputEmail = (EditText) findViewById(R.id.editTextSesion);
